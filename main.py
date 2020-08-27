@@ -12,12 +12,14 @@ def generate_random_values(size):
 def generate_random_volumes(size):
     return [ randint(1,MAX_VOLUME) for i in range(size)]
 
-def greedy_solution(capacity,values,volumes):
+# Non-optimal solution. Here to illsutrate the difference with the Dynamical Programming solution
+def greedy_resolution(capacity,values,volumes):
     # Compute the ratio between value and volume
     ratio = [values[i]/float(volumes[i]) for i in range(len(values))]
-    index = [i+1 for i in range(len(values))]
 
     # Sort the couples (value/volume) according to the ratio
+    # Add indexes to keep track of the original form
+    index = [i+1 for i in range(len(values))]
     ratio,values, volumes,index = (list(l) for l in zip(*sorted(zip(ratio,values, volumes,index),reverse=True)))
 
     # Add elements until the volume is too important
@@ -31,73 +33,87 @@ def greedy_solution(capacity,values,volumes):
         subset.append(index[id])
         id += 1
 
-    return(sum_volumes,sum_values,subset)
+    return(sum_volumes,sum_values,sorted(subset))
 
-
-def dynamic_solution(capacity,values,volumes):
+# Compute the solution using Dynamical Programming
+def dynamic_resolution(capacity,values,volumes):
+    # Initalization of the variables
     nb_items = len(values)
     subset = []
     sum_volumes = 0
+    # Used to keep track of the maximum value possible for each sub capacities
     stored_max = [[0 for j in range(capacity+1)] for i in range(nb_items)]
+    # Used to keep track of the items in the final subset
     kept_items = [[0 for j in range(capacity+1)] for i in range(nb_items)]
 
+    # Construction of the table containing the maximum value of a shipment
+    # According to the number of items and the total capacity
     for item in range(nb_items):
         for sub_cap in range(1,capacity+1):
+            # If the volume of the item is bigger than the sub capacity
             if volumes[item] > sub_cap:
+                # Same max as the previous item
                 stored_max[item][sub_cap] = stored_max[item-1][sub_cap]
             else:
                 max_with_new_item = stored_max[item-1][sub_cap-volumes[item]] + values[item]
                 max_without_new_item = stored_max[item-1][sub_cap]
+                # Max value is higher if the new item is had
                 if max_with_new_item > max_without_new_item:
-                    stored_max[item][sub_cap] =max_with_new_item
-                    kept_items[item][sub_cap]=1
-                    # print("item " + str(item))
-                    # print("w " + str(sub_cap))
+                    stored_max[item][sub_cap] = max_with_new_item
+                    kept_items[item][sub_cap]= 1 # Tells that the item belongs to the subset
+                # The new item should not be added
                 else:
-                    stored_max[item][sub_cap] =max_without_new_item
-                    kept_items[item][sub_cap]=0
+                    stored_max[item][sub_cap] = max_without_new_item
+                    kept_items[item][sub_cap]=0 # Tells that the item is not in the subset
 
+    # Reverse the logic used to construct the table
+    # In order to get all the elements of the subset
     current_volume = capacity
     # print(DataFrame(kept_items))
     for i in range(nb_items-1,-1,-1):
-        # print("item = " + str(i))
-        # print("w = " + str(current_volume))
         if kept_items[i][current_volume]==1:
-            subset.append(i+1)
-            sum_volumes += volumes[i]
-            current_volume = current_volume - volumes[i]
+            subset.append(i+1) # Get the item's index
+            sum_volumes += volumes[i] # Add its volume to the total volume
+            current_volume = current_volume - volumes[i] # Get to the new item
 
     # print(DataFrame(stored_max))
-    return sum_volumes,stored_max[nb_items-1][capacity],subset
+    # The maximal value per shipment can be fetched directly from the table
+    return sum_volumes,stored_max[nb_items-1][capacity],sorted(subset)
+
+def print_result(sum_vol,sum_val,subset):
+    print(str(sum_vol) + " L of goods can fit into the truck, representing a total worth of " + str(sum_val) + " euros.")
+    print("The corresponding subset is composed of the elements " + str(subset))
 
 if __name__ == "__main__":
-    # Define main variables
+    ## Define main variables
     capacity = 15
     size = 5
 
-    # Generate a random dataset
+    ## Generate a random dataset
     # values = generate_random_values(size)
     # volumes = generate_random_volumes(size)
+    ## Generate the given dataset
     values = [7,9,5,12,14,6,12]
     volumes = [3,4,2,6,7,3,5]
-    # values = [6,5,1,15,18]
-    # volumes = [1,7,3,7,6]
-    print("values : " + str(values))
-    print("volumes : " + str(volumes))
+    ## Print the dataset
+    print("\nDATASET\n")
+    print("values : " + str(values) + " \t (in euros)")
+    print("volumes : " + str(volumes) + " \t (in L)")
 
-    # Verifications
+    ## Verifications
     if capacity <= 0 :
         raise ValueError('Capacity should be strictly positive !')
     if len(values)!=len(volumes):
         raise ValueError('Values and volumes array should be of same size !')
 
-    # Find a solution
-    sum_vol,sum_val,subset = greedy_solution(capacity,values,volumes)
-    print(str(sum_vol) + " L of goods can fit into the truck, representing a total worth of " + str(sum_val) + " euros.")
-    print("The corresponding subset is composed of the elements " + str(subset))
-    # Find a solution through dynamical programming
-    sum_vol,sum_val,subset = dynamic_solution(capacity,values,volumes)
+    print("\n\n\nRESOLUTIONS\n")
+    ## Find a non optimal solution through a greedy algorithm
+    sum_vol,sum_val,subset = greedy_resolution(capacity,values,volumes)
+    print("Resolution using a greedy algorithm :\n")
+    print_result(sum_vol,sum_val,subset)
 
-    # Print the solution
-    print(str(sum_vol) + " L of goods can fit into the truck, representing a total worth of " + str(sum_val) + " euros.")
-    print("The corresponding subset is composed of the elements " + str(subset))
+    ## Find a solution through dynamical programming
+    sum_vol,sum_val,subset = dynamic_resolution(capacity,values,volumes)
+    print("\n\nResolution using Dynamical Programming : \n")
+    print_result(sum_vol,sum_val,subset)
+    print("\n")
