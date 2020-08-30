@@ -43,10 +43,49 @@ Therefore, the **temporal complexity of the algorithm is O(nlog(n))**.
 Regarding the spatial complexity, only an array of length n needs to be created in order to keep track of the ratios. 
 Thus, the **spatial complexity of the algorithm is O(n)**. 
 
+To have a reliable solution to this problem, the greedy algorithm resolution is not satisfying as it can not guarantee to give the optimal result. I have still decided to
+implement it in order to compare its results with the dynamic programming'ones.  
+
 ### Dynamic Programming resolution
 
+To explain the second method used, let's get back to the definition of the dynamic programming. The principle of this method is to break down a problem in several sub-problems. Then, solving the problem will is equivalent to get the resolution of the sub-problems it is composed of. The resolution of the sub-problems are stored in 
+memory in order to access them easily, without recomputing them every times. 
+In our case, this method is applied as following : let's consider a cargo truck of capacity C and a list of items of length N. Finding the optimal subset for the combinaison
+(N,C) is similar to find get the subset for the combinaison (N-1,C) and see if any of the remaining items could fit in the cargo truck. If so, the item will be added to the 
+optimal subset and the total value of the shipment will be increased by the item's value. If the item does not fit, the optimal subset fo (N,C) is the same than (N-1,C). 
+
+Because we have to loop over all the N items for each capacity between 1 and C, the **temporal complexity of the algorithm is O(NC)**. To store all the sub maximum, we need to construct a N-by-C matrix as explained above so the **spatial complexity of the algorithm is O(NC)**. 
+There is no need to compre both methods'complexities as the Dynamix Programming resolution offers an optimal subset whereas the greedy algorithm is only able to compute a locally optimal solution. 
+
 ## Implementation 
+
+PSeudo code for the greedy algorithm :
+
+> Sort the volumes and the values from the highest ratio value/volume per item to the lowest. 
+
+> sum_volume,sum_value = 0,0 
+
+> // Make sure that the next item will fit before adding it 
+
+> While sum_volume + next_item_volume <= total_capacity
+
+  >> sum_volume += next_item_volume 
+  
+  >> sum_value += next_item_value 
+  
+  >> increase next_item
+  
+  >> add current item to the subset 
+  
+> return subset,sum_value,sum_volume
 
 ## Conclusion
 
 ## Sources 
+[The Wikipedia page](https://en.wikipedia.org/wiki/Knapsack_problem)
+
+[Different implementations from geeks for geeks](https://www.geeksforgeeks.org/0-1-knapsack-problem-dp-10/)
+
+[Explanation of the Dynamical Programming resolution](https://dev.to/downey/solving-the-knapsack-problem-with-dynamic-programming-4hce)
+
+[Lecture on the KnapSack problem](http://www.es.ele.tue.nl/education/5MC10/Solutions/knapsack.pdf)
