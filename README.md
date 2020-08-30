@@ -59,25 +59,54 @@ There is no need to compre both methods'complexities as the Dynamix Programming 
 
 ## Implementation 
 
-PSeudo code for the greedy algorithm :
+Pseudo code for the greedy algorithm :
+```
+Sort the volumes and the values from the highest ratio value/volume per item to the lowest. 
 
-> Sort the volumes and the values from the highest ratio value/volume per item to the lowest. 
+// Make sure that the next item will fit before adding it 
 
-> sum_volume,sum_value = 0,0 
+While sum_volume + next_item_volume <= total_capacity
 
-> // Make sure that the next item will fit before adding it 
-
-> While sum_volume + next_item_volume <= total_capacity
-
-  >> sum_volume += next_item_volume 
+  sum_volume += next_item_volume 
   
-  >> sum_value += next_item_value 
+  sum_value += next_item_value 
   
-  >> increase next_item
+  increase next_item
   
-  >> add current item to the subset 
+  add current item to the subset 
   
-> return subset,sum_value,sum_volume
+return subset,sum_value,sum_volume
+```
+
+Pseudo code for the dynamic programming : 
+``` 
+// Build the matrix with the maximum for each couple (N,C) 
+
+For each item from 0 to N
+  For each capacity between 0 and C
+    // Does the item fit ?
+    if item_volume > capacity 
+      stored_max[item][capacity] = stored_max[item-1][capacity] 
+    else 
+      // Is the item kept or not ?
+      stored_max[item][capacity] = max(stored_max[item-1][capacity],stored_max[item-1][capacity-item_volume] + item_value)
+```
+
+In this pseudo code, we can see that getting the value ```stored_max[N][C]``` will return the maximum value for the shipment of capacity C and N items. But then,
+it is not possible to know which subset of items will lead to the optimal combinaison. 
+That is why I added a loop to get this subset. To do so, it is necessary to reverse the logic implemented in the construction of the stored_max matrix but also to store when
+an item has been added to a subset. 
+
+If we assume that the added items for the couple (item,capacity) are stored in a kept_items matrix, the loop to get back to the subset function like this : 
+
+```
+  capacity = C 
+  for item in 0 to N 
+    if kep_item[item][capacity] is True 
+      add item to subset 
+      capacity = capacity - item_volume // What volume is left once we know that item belongs to the subset 
+```
+In addition, we can keep track of the sum of all the item's volume to know the total volume of the shipment. 
 
 ## Conclusion
 
