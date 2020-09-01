@@ -114,9 +114,13 @@ Once both algorithms had been implemented, I wanted to test their temporal perfo
 
 To do so, I used the [timeit function](https://documentation.help/Python-3.7/timeit.html) for each algorithm and over 1000 executions. To confirm that the greedy algorithm's temporal complexity was only sensitive to the number of items whereas the dynamic programmation algorithm'one was sensitive to both the number of items and the capacity of the truck, I plotted the total execution time for both the algorithm. The first plot represent both temporal complexity when the capacity is fixed at 10 L and the number of items is varying and in the second the number of items is fixed at 100 while the capacity is varying. 
 
+![complexity_N](complexity_N.png)
+
+![complexity_C](complexity_C.png)
+
 Those plots are confirming our theoretical expectations. 
 
-In light of the temporal complexity's difference relatively to the number of items, I wonder if it could still be interesting to use the greedy resolution rather that the dynamical one when the number of item and the capacity were really big. 
+In light of the temporal complexity's difference relatively to the number of items, I wonder if it could be interesting to use the greedy resolution rather that the dynamical one when the number of items and/or the capacity are really big. 
 
 To be able to answer this question, I needed to quantify the loss that might occur when the greedy algorithm will return a suboptimal susbet and how often would it happen. This is why I created the ```test_accuracy``` function in which I generate a random dataset of 1000 items and I fix the capacity of the truck at 50L. Then, I make the difference between maximum value returned by the greedy and the dynamic programming algorithm and I sum the error between the two. This is executed 1000 times and considering that the dynamical programming algorithm always find the maximum value, I can tell how often did the greedy algorithm found a different value. Finally, by summing the erros over the 1000 executions and dividing by the number of time the values were different, I can have the mean loss in percentage of the total value of the shipment. 
 
