@@ -108,7 +108,25 @@ If we assume that the added items for the couple (item,capacity) are stored in a
 ```
 In addition, we can keep track of the sum of all the item's volume to know the total volume of the shipment. 
 
-## Conclusion
+## Discussions 
+
+Once both algorithms had been implemented, I wanted to test their temporal performances and see if it fitted the theoretical expectations. 
+
+To do so, I used the [timeit function](https://documentation.help/Python-3.7/timeit.html) for each algorithm and over 1000 executions. To confirm that the greedy algorithm's temporal complexity was only sensitive to the number of items whereas the dynamic programmation algorithm'one was sensitive to both the number of items and the capacity of the truck, I plotted the total execution time for both the algorithm. The first plot represent both temporal complexity when the capacity is fixed at 10 L and the number of items is varying and in the second the number of items is fixed at 100 while the capacity is varying. 
+
+Those plots are confirming our theoretical expectations. 
+
+In light of the temporal complexity's difference relatively to the number of items, I wonder if it could still be interesting to use the greedy resolution rather that the dynamical one when the number of item and the capacity were really big. 
+
+To be able to answer this question, I needed to quantify the loss that might occur when the greedy algorithm will return a suboptimal susbet and how often would it happen. This is why I created the ```test_accuracy``` function in which I generate a random dataset of 1000 items and I fix the capacity of the truck at 50L. Then, I make the difference between maximum value returned by the greedy and the dynamic programming algorithm and I sum the error between the two. This is executed 1000 times and considering that the dynamical programming algorithm always find the maximum value, I can tell how often did the greedy algorithm found a different value. Finally, by summing the erros over the 1000 executions and dividing by the number of time the values were different, I can have the mean loss in percentage of the total value of the shipment. 
+
+For 1000 items and a capacity of 50L, the greedy algorithm got the optimal subset 795 times (~80% of the time) and when it did not, the relative error was about 1,29 % of the optimal value of the shipment. 
+
+This could let us think that in a configuration where a large amount of items is available for a relatively small capacity, using greedy algorithm over dynamical programming algorithm might be significantly faster and will not lead in such a big loss in terms of value of the shipment. 
+
+Nevertheless, this is not true for every (capacity, nb_of_items) couples and also depends of the values of the volumes of the items. As an example, if we have 50 items and a capacity of 50 L, the greedy algorithm got the optimal subset 231 times (~23% of the time) and when it did not, the relative error was about 2,84 % of the optimal value of the shipment. 
+
+In this case, choosing the greedy algorithm will not be interesting. 
 
 ## Sources 
 [The Wikipedia page](https://en.wikipedia.org/wiki/Knapsack_problem)
