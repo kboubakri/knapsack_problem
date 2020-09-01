@@ -1,6 +1,7 @@
 #!/usr/bin/python2.7
 
 from random import randint
+import timeit
 from pandas import *
 
 MAX_VOLUME = 10
@@ -84,17 +85,7 @@ def print_result(sum_vol,sum_val,subset):
     print(str(sum_vol) + " L of goods can fit into the truck, representing a total worth of " + str(sum_val) + " euros.")
     print("The corresponding subset is composed of the elements " + str(subset))
 
-if __name__ == "__main__":
-    ## Define main variables
-    capacity = 15
-    size = 5
-
-    ## Generate a random dataset
-    # values = generate_random_values(size)
-    # volumes = generate_random_volumes(size)
-    ## Generate the given dataset
-    values = [7,9,5,12,14,6,12]
-    volumes = [3,4,2,6,7,3,5]
+def run(capacity,volumes,values):
     ## Print the dataset
     print("\nDATASET\n")
     print("values : " + str(values) + " \t (in euros)")
@@ -117,3 +108,46 @@ if __name__ == "__main__":
     print("\n\nResolution using Dynamical Programming : \n")
     print_result(sum_vol,sum_val,subset)
     print("\n")
+
+def test_accuracy(nb_execution,capacity,size):
+    differences = []
+    mean_value = 0.0
+    for i in range(nb_execution):
+        values = generate_random_values(size)
+        volumes = generate_random_volumes(size)
+        a,val_greedy,b = greedy_resolution(capacity,values,volumes)
+        a,val_dynamic,b = dynamic_resolution(capacity,values,volumes)
+        differences.append(val_dynamic-val_greedy)
+        mean_value += val_greedy
+    mean_value /= nb_execution
+    nb_of_success = differences.count(0)
+    mean_loss = sum(differences)/(nb_execution-differences.count(0))*(100/mean_value)
+    print("Out of " + str(nb_execution) + " executions, " + str(nb_of_success) + " greedy resolution have found the optimal subset.")
+    print("When it was not the case, the mean loss was equal to " + str(mean_loss) + " %.")
+
+def test_performances(nb_executions,capacity,size):
+    print("this test is done using " + str(size) + ' items and a capacity of ' + str(capacity) +" in L.")
+    print("Total time for the greedy algorithm :\n")
+    result = timeit.timeit('greedy_resolution(capacity,values,volumes)',globals=globals(),number=nb_executions)
+    print(result + " in s.")
+
+    print("\n\nTotal time for the Dynamical Programming : \n")
+    result = timeit.timeit('dynamic_resolution(capacity,values,volumes)',globals=globals(),number=nb_executions)
+    print(result + " in s.")
+
+if __name__ == "__main__":
+    ## Define main variables
+    capacity = 15
+    size = 100
+
+    # Generate a random dataset if needed
+    # values = generate_random_values(size)
+    # volumes = generate_random_volumes(size)
+
+    ## Generate the given dataset
+    values = [7,9,5,12,14,6,12]
+    volumes = [3,4,2,6,7,3,5]
+
+    # test_accuracy(1000,capacity,size)
+    # test_performances(1000,capacity,size)
+    run(capacity,volumes,values)
