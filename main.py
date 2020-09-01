@@ -13,8 +13,12 @@ def generate_random_values(size):
 def generate_random_volumes(size):
     return [ randint(1,MAX_VOLUME) for i in range(size)]
 
-# Non-optimal solution. Here to illsutrate the difference with the Dynamical Programming solution
 def greedy_resolution(capacity,values,volumes):
+    """
+    Implementation of the greedy algorithm used to solve the Knapsack problem.
+    It is based on local optimisation and rank the items based on their "efficiency"
+    before summing them. It does not always lead to the optimal solution.
+    """
     # Compute the ratio between value and volume
     ratio = [values[i]/float(volumes[i]) for i in range(len(values))]
 
@@ -28,7 +32,7 @@ def greedy_resolution(capacity,values,volumes):
     sum_values = 0
     subset = []
     id = 0
-    while sum_volumes + volumes[id] <= capacity:
+    while id < len(values) and sum_volumes + volumes[id] <= capacity:
         sum_volumes += volumes[id]
         sum_values += values[id]
         subset.append(index[id])
@@ -36,8 +40,12 @@ def greedy_resolution(capacity,values,volumes):
 
     return(sum_volumes,sum_values,sorted(subset))
 
-# Compute the solution using Dynamical Programming
 def dynamic_resolution(capacity,values,volumes):
+    """
+    Implementation of the dynamical programming algorithm used to solve the Knapsack problem.
+    First, it build a capacity*nb_of_items matrix containing the maximum value for all the
+    (capacity,nb_items) sub couples. Then, it return the value for the desired couple.
+    """
     # Initalization of the variables
     nb_items = len(values)
     subset = []
@@ -86,6 +94,10 @@ def print_result(sum_vol,sum_val,subset):
     print("The corresponding subset is composed of the elements " + str(subset))
 
 def run(capacity,volumes,values):
+    """
+    Main function which print the max value and the used volume for the corresponding
+    subset using the greedy and the dynamical programming resolution.
+     """
     ## Print the dataset
     print("\nDATASET\n")
     print("values : " + str(values) + " \t (in euros)")
@@ -110,6 +122,10 @@ def run(capacity,volumes,values):
     print("\n")
 
 def test_accuracy(nb_execution,capacity,size):
+    """
+    Test the accuracy of the greedy resolution comparing to the dynamical programming
+    resolution for a certain capacity and size.
+    """
     differences = []
     mean_value = 0.0
     for i in range(nb_execution):
@@ -126,14 +142,18 @@ def test_accuracy(nb_execution,capacity,size):
     print("When it was not the case, the mean loss was equal to " + str(mean_loss) + " %.")
 
 def test_performances(nb_executions,capacity,size):
+    """
+    Return the total execution time for the greedy_resolution and the dynamic_resolution
+    for a given capacity and size.
+    """
     print("this test is done using " + str(size) + ' items and a capacity of ' + str(capacity) +" in L.")
     print("Total time for the greedy algorithm :\n")
     result = timeit.timeit('greedy_resolution(capacity,values,volumes)',globals=globals(),number=nb_executions)
-    print(result + " in s.")
+    print(str(result) + " in s.")
 
     print("\n\nTotal time for the Dynamical Programming : \n")
     result = timeit.timeit('dynamic_resolution(capacity,values,volumes)',globals=globals(),number=nb_executions)
-    print(result + " in s.")
+    print(str(result) + " in s.")
 
 if __name__ == "__main__":
     ## Define main variables
@@ -148,6 +168,6 @@ if __name__ == "__main__":
     values = [7,9,5,12,14,6,12]
     volumes = [3,4,2,6,7,3,5]
 
-    # test_accuracy(1000,capacity,size)
-    # test_performances(1000,capacity,size)
+    # test_accuracy(1000,capacity,size) # Uncomment the random dataset
+    # test_performances(1000,capacity,size) # Uncomment the random dataset
     run(capacity,volumes,values)
